@@ -22,36 +22,37 @@ unlink(temp)
 UCImergedXY_1 <- cbind(UCItestX,UCItestY)
 UCImergedXY_2 <- cbind(UCItrainX,UCItrainY)
 UCImergedXY <- rbind(UCImergedXY_1,UCImergedXY_2)
+rm(UCImergedXY_1,UCImergedXY_2)
 
-# 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
-require("fBasics")
-UCImergedStats <- rbind(t(colMeans(UCImergedXY,na.rm=TRUE)),t(colSds(UCImergedXY)))
-row.names(UCImergedStats)<- c("Mean","StDev")
+# 2. Extracts only the measurements on the mean and standard deviation for each measurement.
+column_log <- grepl("mean",UCIFeatures$V2)|grepl("std",UCIFeatures$V2)
+UCImergedXY <- UCImergedXY[,c(column_log,TRUE)]
 
 # 3. Uses descriptive activity names to name the activities in the data set
 # First, we avoid that two columns are named "V1" and set the last col, that stems from UCItrainY and 
 # UCItestY as the numeric activity index.
-colnames(UCImergedXY)[562] <- "activity_level_num"
+colnames(UCImergedXY)[80] <- "activity"
 # Then, we create a factor variable named "activity" with the corresponding levels from the UCILabels table.
-UCImergedXY$activity <- factor(UCImergedXY$activity_level_num, levels = UCILabels$V1, labels = UCILabels$V2)
+UCImergedXY$activity <- factor(UCImergedXY$activity, levels = UCILabels$V1, labels = UCILabels$V2)
 
 # 4. Appropriately labels the data set with descriptive variable names.
 # We find the corresponding column names stored in the UCIFeatures data.frame as factors.
-colnames(UCImergedXY)[1:561] <- as.character(UCIFeatures$V2)
+colnames(UCImergedXY)[1:79] <- as.character(UCIFeatures$V2[column_log])
 
 # 5. From the data set in step 4, creates a second, independent tidy data set with the average of each 
 # variable for each activity and each subject.
 # We add the subjects data to the merged data frame
 UCIsubjectMerged <- rbind(UCISubjectTest,UCISubjectTrain)
-UCImergedXY <- cbind(UCIsubjectMerged,UCImergedXY)
-colnames(UCImergedXY)[1] <- "subject"
+UCImergedXY <- cbind(UCImergedXY,UCIsubjectMerged)
+colnames(UCImergedXY)[81] <- "subject"
 
 # We introduce a new data frame containing the subject by number and activity by name as a string. In this
 # case we find 30 subjects with 6 activities resulting in 180 rows for the new data frame.
-results <- data.frame(subj_activity = paste(as.character(rep(1:length(unique(UCImergedXY$subject)),each=6)),
-                              rep(as.character(UCILabels$V2),length(unique(UCImergedXY$subject))),sep="_"))
 # The aggregate function gives a solution to the given problem 
-results <- cbind(results, aggregate(UCImergedXY[,1:562], FUN=mean, na.rm=TRUE,
-                                    by=list(UCImergedXY$activity,UCImergedXY$subject) ))
+results <- aggregate(UCImergedXY[,1:81], FUN=mean, na.rm=TRUE,
+                                    by=list(UCImergedXY$activity,UCImergedXY$subject) )
 # Delete Subject to produce tidy data.
-results <- results[,-c(4)]
+results <- results[,-c(82:83)]
+# Rename the first two columns
+colnames(results)[1:2] <- c("activity","subject")
+rm(UCItestY,UCImergedXY,UCIFeatures,UCILabels,UCISubjectTest,UCISubjectTrain,UCIsubjectMerged,UCItestX,UCItrainX,UCItrainY)
