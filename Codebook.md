@@ -38,12 +38,19 @@ The remaining variables are chosen according to the underlaying data set from th
 We begin with downloading the data from the corresponding website and store it in the "temp"-variable. Using "read.table" we create 
 
 UCItestX <- read.table(unz(temp,"UCI HAR Dataset/test/X_test.txt"))
+
 UCItestY <- read.table(unz(temp,"UCI HAR Dataset/test/y_test.txt"))
+
 UCItrainX <- read.table(unz(temp,"UCI HAR Dataset/train/X_train.txt"))
+
 UCItrainY <- read.table(unz(temp,"UCI HAR Dataset/train/y_train.txt"))
+
 UCILabels <- read.table(unz(temp,"UCI HAR Dataset/activity_labels.txt"))
+
 UCIFeatures <- read.table(unz(temp,"UCI HAR Dataset/features.txt"))
+
 UCISubjectTest<- read.table(unz(temp,"UCI HAR Dataset/test/subject_test.txt"))
+
 UCISubjectTrain<- read.table(unz(temp,"UCI HAR Dataset/train/subject_train.txt"))
 
 1st step: Merges the training and the test sets to create one data set.
